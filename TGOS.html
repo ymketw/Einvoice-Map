@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>Getting Start TGOS MAP</title>
+<script type="text/javascript" src="http://api.tgos.nat.gov.tw/TGOS_API/tgos?ver=2&AppID=Tw7cFZt2kGy6wTmw3sIekPBqrEIY0lreYgSFa4bcfVYojDkig/xlBA==&APIKey=cGEErDNy5yN/1fQ0vyTOZrghjE+jIU6u5ipI0qIhBu7EFQSTnV2gxTwzUff8quRx097rfBNjje7sHbyWWbX99SCpMT9K1S+ijwN5Jrs+jJzZFUp+9EVKc+Md9vHCphSN77s9oYXRwyC2rr0kKonjqe6z9cQZFV2nm4W8FdZX1hqhUr2C2OqLMw51SmZS8VElWODFnEIZ+Gv5OHSFgdKaYXj1thYkXX5/QsYr1cV+dFUnqzCx9a3B0uznYgd72itE8kB4VcuCpgq8LisEz7NHYoKAIRYc7PlDraz6y4zQnNmy4qaHPkjAjHuZxXRJajZMa7WKPy563AjqWXRkNW+8VjJpqMgdnE+myfuSAli0NbD+JEiR+6rbOQ==" charset="utf-8"></script>
+<script type="text/javascript">
+
+function InitWnd() {
+	var pOMap = document.getElementById("TGMap");
+	var pMap = new TGOS.TGOnlineMap(pOMap, TGOS.TGCoordSys.EPSG3857);
+	pMap.setCenter(new TGOS.TGPoint(121.516946, 25.047941) );  //移至此地圖坐標
+	pMap.setZoom(13); // Zooming
+	markerPoint = new TGOS.TGPoint(121.541536, 25.019615);  //設定點資料坐標
+	markerImg = new TGOS.TGImage("http://api.tgos.nat.gov.tw/TGOS_API/images/marker.png",
+	new TGOS.TGSize(38, 33), new TGOS.TGPoint(0, 0), new TGOS.TGPoint(10, 33));
+	pTGMarker = new TGOS.TGMarker(pMap, markerPoint, "德田館", markerImg);  
+}
+</script>
+</head>
+<body style="margin: 0px" onload="InitWnd();">
+	<div id="TGMap" style="width:100vw;height:100vh;"></div>
+</body>
+</html>
