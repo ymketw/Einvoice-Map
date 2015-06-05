@@ -4,18 +4,125 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <title>Getting Start TGOS MAP</title>
 <script type="text/javascript" src="http://api.tgos.nat.gov.tw/TGOS_API/tgos?ver=2&AppID=Tw7cFZt2kGy6wTmw3sIekPBqrEIY0lreYgSFa4bcfVYojDkig/xlBA==&APIKey=cGEErDNy5yN/1fQ0vyTOZrghjE+jIU6u5ipI0qIhBu7EFQSTnV2gxTwzUff8quRx097rfBNjje7sHbyWWbX99SCpMT9K1S+ijwN5Jrs+jJzZFUp+9EVKc+Md9vHCphSN77s9oYXRwyC2rr0kKonjqe6z9cQZFV2nm4W8FdZX1hqhUr2C2OqLMw51SmZS8VElWODFnEIZ+Gv5OHSFgdKaYXj1thYkXX5/QsYr1cV+dFUnqzCx9a3B0uznYgd72itE8kB4VcuCpgq8LisEz7NHYoKAIRYc7PlDraz6y4zQnNmy4qaHPkjAjHuZxXRJajZMa7WKPy563AjqWXRkNW+8VjJpqMgdnE+myfuSAli0NbD+JEiR+6rbOQ==" charset="utf-8"></script>
+<script type="text/javascript" src="test_data.js"></script>
 <script type="text/javascript">
-
+var pMap = null;
 function InitWnd() {
 	var pOMap = document.getElementById("TGMap");
-	var pMap = new TGOS.TGOnlineMap(pOMap, TGOS.TGCoordSys.EPSG3857);
-	pMap.setCenter(new TGOS.TGPoint(121.516946, 25.047941) );  //移至此地圖坐標
-	pMap.setZoom(13); // Zooming
-	markerPoint = new TGOS.TGPoint(121.541536, 25.019615);  //設定點資料坐標
-	markerImg = new TGOS.TGImage("http://api.tgos.nat.gov.tw/TGOS_API/images/marker.png",
-	new TGOS.TGSize(38, 33), new TGOS.TGPoint(0, 0), new TGOS.TGPoint(10, 33));
-	pTGMarker = new TGOS.TGMarker(pMap, markerPoint, "德田館", markerImg);  
+	pMap = new TGOS.TGOnlineMap(pOMap, TGOS.TGCoordSys.EPSG3857); // set coordinate to WGS84
+	pMap.setCenter(new TGOS.TGPoint(121.516946, 25.047941) );  // set the center of the initial map
+	pMap.setZoom(13); // Zooming scale
+	//markerPoint = new TGOS.TGPoint(121.541536, 25.019615);  //設定點資料坐標
+	//markerImg = new TGOS.TGImage("http://api.tgos.nat.gov.tw/TGOS_API/images/marker.png",
+	//new TGOS.TGSize(38, 33), new TGOS.TGPoint(0, 0), new TGOS.TGPoint(10, 33));
+	//pTGMarker = new TGOS.TGMarker(pMap, markerPoint, "德田館", markerImg);  
+	addPosition(test_data);
+	//addMarker(new TGOS.TGPoint(121.522932,25.041973), "男四");
+	//addMSGWindow();
+	//addPointMSG();
+	//addMarkerClusters();
 }
+function addPosition(data){
+	var pTGSymbo = new TGOS.TGSymbol();               //建立幾何物件
+	pTGSymbo.symbolStyle = TGOS.TGSymbolStyle.TRIANGLE;            //設定標記的符號
+	pTGSymbo.xPixel = 32;                                        //設定標記寬度
+	pTGSymbo.yPixel = 32;                                        //設定標記高度
+	pTGSymbo.fillColor = "#aa2222";                     //設定填入顏色
+	pTGSymbo.fillOpacity = 0.7;                               //設定透明度
+	pTGSymbo.strokeWeight = 2;                           //設定框線寬度
+	pTGSymbo.strokeOpacity = 0.4;                       //設定框線透明度
+	pTGSymbo.strokeColor = "#000000";              //設定框線顏色
+	pTGSymbo.anchor.x = 16;                                  //設定錨點x座標
+	pTGSymbo.anchor.y = 16;                                  //設定錨點y座標
+	pTGSymbo.rotation = 0;                                      //設定符號旋轉方向
+	var InfoWindowOptions = {
+         maxWidth:4000, //訊息視窗的最大寬度
+         pixelOffset: new TGOS.TGSize(5, -30), //InfoWindow起始位置的偏移量
+                                               //使用TGSize設定
+                                               //向右X為正, 向上Y為負
+         zIndex:99 //視窗堆疊順序
+	};
+	for(var i=0; i<data.length; ++i){
+		point = new TGOS.TGMarker(pMap,new TGOS.TGPoint(data[i][0],data[i][1]),data[i][2],pTGSymbo);
+	}
+	messageBox = new TGOS.TGInfoWindow('<h1><font color="red">'+i+'</font></h1>', point, InfoWindowOptions);
+	TGOS.TGEvent.addListener(pTGMarker, "mouseover", openInfoWindow);
+    TGOS.TGEvent.addListener(pTGMarker, "mouseout", closeInfoWindow);
+}
+function addMarker(markerPoint, _name){
+	var pTGSymbo = new TGOS.TGSymbol();               //建立幾何物件
+	pTGSymbo.symbolStyle = TGOS.TGSymbolStyle.TRIANGLE;            //設定標記的符號
+	pTGSymbo.xPixel = 32;                                        //設定標記寬度
+	pTGSymbo.yPixel = 32;                                        //設定標記高度
+	pTGSymbo.fillColor = "#aa2222";                     //設定填入顏色
+	pTGSymbo.fillOpacity = 0.7;                               //設定透明度
+	pTGSymbo.strokeWeight = 2;                           //設定框線寬度
+	pTGSymbo.strokeOpacity = 0.4;                       //設定框線透明度
+	pTGSymbo.strokeColor = "#000000";              //設定框線顏色
+	pTGSymbo.anchor.x = 16;                                  //設定錨點x座標
+	pTGSymbo.anchor.y = 16;                                  //設定錨點y座標
+	pTGSymbo.rotation = 0;                                      //設定符號旋轉方向
+	//point1 = new TGOS.TGMarker(pMap, markerPoint,_name,pTGSymbo);
+	point1 = new TGOS.TGMarker(pMap,new TGOS.TGPoint(121.522932,25.041973),"男四",pTGSymbo);
+	point2 = new TGOS.TGMarker(pMap,new TGOS.TGPoint(121.521613,25.040995),"男二",pTGSymbo);
+	point3 = new TGOS.TGMarker(pMap,new TGOS.TGPoint(121.518941,25.040797),"臺大醫院",pTGSymbo);
+	point4 = new TGOS.TGMarker(pMap,new TGOS.TGPoint(121.523083,25.041254),"公衛學院",pTGSymbo);
+	point5 = new TGOS.TGMarker(pMap,new TGOS.TGPoint(121.525110,25.040836),"舊社科院",pTGSymbo);
+	//point6 = new TGOS.TGMarker(pMap,new TGOS.TGPoint(121.522074,25.039902),"全家便利商店-林森南路分公司",pTGSymbo);
+
+markers = [point1,point2,point3,point4,point5];
+addMarkerClusters(markers);
+}
+function addMarkerClusters(markers) {                           //使用群聚標記點功能
+    mCluster = new TGOS.TGMarkerCluster(pMap, markers,{}); //建立群聚標記點物件
+    mCluster.setMaxZoom(12);                             //設定群聚標記點最大縮放範圍
+    mCluster.setVisible(true);                         //設定群聚標記點是否為顯示狀態
+    mCluster.setSearchBounds(30);                      //設定群聚標記點的搜尋範圍(單位px)
+    mCluster.redrawAll(true);                         //是否重新繪製群聚標記點物件
+}
+function addMSGWindow(){
+	var InfoWindowOptions = {  //設定訊息視窗參數
+	maxWidth: 380,  //訊息視窗的最大寬度
+	pixelOffset: new TGOS.TGSize(0, 0),  //訊息視窗的位移量(pixel)
+		zIndex: 3  //訊息視窗堆疊順序
+	};
+	messageBox = new TGOS.TGInfoWindow("寧夏",new TGOS.TGPoint(121.515004,25.054715), InfoWindowOptions);
+	//新增訊息視窗
+	messageBox.open(pMap);
+}
+
+function openInfoWindow() {         
+      messageBox.open(pMap);
+}
+function closeInfoWindow() {
+      messageBox.close();
+}
+function addPointMSG(){
+	var pTGSymbo = new TGOS.TGSymbol();               //建立幾何物件
+	pTGSymbo.symbolStyle = TGOS.TGSymbolStyle.TRIANGLE;            //設定標記的符號
+	pTGSymbo.xPixel = 32;                                        //設定標記寬度
+	pTGSymbo.yPixel = 32;                                        //設定標記高度
+	pTGSymbo.fillColor = "#22AA22";                     //設定填入顏色
+	pTGSymbo.fillOpacity = 0.7;                               //設定透明度
+	pTGSymbo.strokeWeight = 2;                           //設定框線寬度
+	pTGSymbo.strokeOpacity = 0.4;                       //設定框線透明度
+	pTGSymbo.strokeColor = "#000000";              //設定框線顏色
+	pTGSymbo.anchor.x = 16;                                  //設定錨點x座標
+	pTGSymbo.anchor.y = 16;                                  //設定錨點y座標
+	pTGSymbo.rotation = 0;                                      //設定符號旋轉方向
+	var point = new TGOS.TGMarker(pMap,new TGOS.TGPoint(121.522074,25.039902),"全家便利商店-林森南路分公司",pTGSymbo);
+	var InfoWindowOptions = {
+         maxWidth:4000, //訊息視窗的最大寬度
+         pixelOffset: new TGOS.TGSize(5, -30), //InfoWindow起始位置的偏移量
+                                               //使用TGSize設定
+                                               //向右X為正, 向上Y為負
+         zIndex:99 //視窗堆疊順序
+	};
+	messageBox = new TGOS.TGInfoWindow("台北市大安區羅斯福路四段一號", point, InfoWindowOptions);
+	TGOS.TGEvent.addListener(pTGMarker, "mouseover", openInfoWindow);
+    TGOS.TGEvent.addListener(pTGMarker, "mouseout", closeInfoWindow);
+}
+
 </script>
 </head>
 <body style="margin: 0px" onload="InitWnd();">
