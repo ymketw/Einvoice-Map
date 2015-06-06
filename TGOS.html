@@ -44,9 +44,9 @@ function addPosition(data){
 	};
     multi_point = [];
    	for(var i = 0; i < data.length; i++) {
-		point = new TGOS.TGPoint(data[i][0],data[i][1]); // create its position
-		multi_point.push(point);
+		var point = new TGOS.TGPoint(data[i][0],data[i][1]); // create its position
 		var pTGMarker = new TGOS.TGMarker(pMap,point,data[i][2], pTGSymbo, {flat:false});   // establish the point on map
+		multi_point.push(pTGMarker);
 		//-----------------establish a message box--------------------
 		var InfoWindowOptions = {
 		      maxWidth:4000, // 訊息視窗的最大寬度
@@ -66,7 +66,7 @@ function addPosition(data){
 		         }
 		} (messageBox));
 	}
-	//addMarkerClusters(multi_point); // add these point to the same cluster
+	addMarkerClusters(multi_point); // add these point to the same cluster
 }
 function addMarker(markerPoint, _name){
 	var pTGSymbo = new TGOS.TGSymbol();               //建立幾何物件
