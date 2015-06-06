@@ -42,12 +42,20 @@ function get_invoice_list_string(invoice_array){
 function showBlock(status){
 	document.getElementById('detail').style.display = (status==true)?"block":"none";
 }
-function addPosition(data){
-	var pTGSymbo = new TGOS.TGSymbol();               //建立幾何物件
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+function getSymbol(){
+	pTGSymbo = new TGOS.TGSymbol();               //建立幾何物件
 	pTGSymbo.symbolStyle = TGOS.TGSymbolStyle.TRIANGLE;            //設定標記的符號
 	pTGSymbo.xPixel = 32;                                        //設定標記寬度
 	pTGSymbo.yPixel = 32;                                        //設定標記高度
-	pTGSymbo.fillColor = "#aa2222";                     //設定填入顏色
+	pTGSymbo.fillColor = getRandomColor();                     //設定填入顏色
 	pTGSymbo.fillOpacity = 0.7;                               //設定透明度
 	pTGSymbo.strokeWeight = 2;                           //設定框線寬度
 	pTGSymbo.strokeOpacity = 0.4;                       //設定框線透明度
@@ -55,6 +63,9 @@ function addPosition(data){
 	pTGSymbo.anchor.x = 16;                                  //設定錨點x座標
 	pTGSymbo.anchor.y = 16;                                  //設定錨點y座標
 	pTGSymbo.rotation = 0;                                      //設定符號旋轉方向
+	return pTGSymbo;
+}
+function addPosition(data){
 	var InfoWindowOptions = {
          maxWidth:4000, //訊息視窗的最大寬度
          pixelOffset: new TGOS.TGSize(5, -30), //InfoWindow起始位置的偏移量
@@ -62,23 +73,27 @@ function addPosition(data){
                                                //向右X為正, 向上Y為負
          zIndex:99 //視窗堆疊順序
 	};
-    multi_point = [];
+	var multi_point = [];
+	var current_cluster = 1;
+	symbol = getSymbol();
    	for(var i = 0; i < data.length; i++) {
+   		if(current_cluster!=data[i][data[i].length-1]) symbol = getSymbol();
 		var point = new TGOS.TGPoint(data[i][0],data[i][1]); // create its position
-		var pTGMarker = new TGOS.TGMarker(pMap,point,data[i][2], pTGSymbo, {flat:false}); // establish the point on map
-		multi_point.push(pTGMarker);
+		var pTGMarker = new TGOS.TGMarker(pMap,point,data[i][2], symbol, {flat:false}); // establish the point on map
+
+		if(current_cluster==data[i][data[i].length-1]) multi_point.push(pTGMarker);
+		else{
+			addMarkerClusters(multi_point);
+			multi_point = [pTGMarker];
+			current_cluster = data[i][data[i].length-1];
+		}
 		//-----------------establish a message box--------------------
 		var InfoWindowOptions = {
 		      maxWidth:4000, // 訊息視窗的最大寬度
 		      pixelOffset: new TGOS.TGSize(5, -30) //InfoWindow起始位置的偏移量, 使用TGSize設定, 向右X為正, 向上Y為負
 		};
-		var InfoWindowOptions_invoice = {
-		      maxWidth:4000, // 訊息視窗的最大寬度
-		      pixelOffset: new TGOS.TGSize(50, -50) //InfoWindow起始位置的偏移量, 使用TGSize設定, 向右X為正, 向上Y為負
-		};
 		var invoice_message = data[i][2]+'：'+data[i][3]+'<br />頻率：'+data[i][4]+'<br />最常購買商品：';
 		messageBox = new TGOS.TGInfoWindow(invoice_message, point, InfoWindowOptions); // the content in message box
-		messageBox_with_invoice = new TGOS.TGInfoWindow(get_invoice_list_string(data[i][5]), point, InfoWindowOptions_invoice); // the content in message box
 
 		TGOS.TGEvent.addListener(pTGMarker, "mouseover", function (pTGMarker, messageBox) { // when mouse over the point
 		     return function () {
@@ -111,6 +126,6 @@ function addMarkerClusters(markers) {                           //使用群聚�
 </head>
 <body style="margin: 0px" onload="InitWnd();">
 	<div id="TGMap" style="width:100vw;height:100vh;"></div>
-	<div id="detail" style="position: absolute; background-color:orange; text-align:center; color: blue; width: 800px; height: 100vh; top: 0px; left:0; right:0; margin-left:auto; margin-right:auto;display:none;"><font color="white">ggg</font></div>
+	<div id="detail" style="position: absolute; background-color:orange; text-align:center; color: blue; width: 800px; height: 100vh; top: 0px; left:0; right:0; margin-left:auto; margin-right:auto;display:none;"><font color="white"></font></div>
 </body>
 </html>
