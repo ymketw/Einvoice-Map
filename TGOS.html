@@ -50,19 +50,20 @@ function getRandomColor() {
     }
     return color;
 }
-function getSymbol(){
-	pTGSymbo = new TGOS.TGSymbol();               //建立幾何物件
-	pTGSymbo.symbolStyle = TGOS.TGSymbolStyle.TRIANGLE;            //設定標記的符號
-	pTGSymbo.xPixel = 32;                                        //設定標記寬度
-	pTGSymbo.yPixel = 32;                                        //設定標記高度
-	pTGSymbo.fillColor = getRandomColor();                     //設定填入顏色
-	pTGSymbo.fillOpacity = 0.7;                               //設定透明度
-	pTGSymbo.strokeWeight = 2;                           //設定框線寬度
-	pTGSymbo.strokeOpacity = 0.4;                       //設定框線透明度
-	pTGSymbo.strokeColor = "#000000";              //設定框線顏色
-	pTGSymbo.anchor.x = 16;                                  //設定錨點x座標
-	pTGSymbo.anchor.y = 16;                                  //設定錨點y座標
-	pTGSymbo.rotation = 0;                                      //設定符號旋轉方向
+function getSymbol(color, freq){
+	size = (freq/10+10)*1.2; // set the size dending on the frequency of shopping times
+	pTGSymbo = new TGOS.TGSymbol(); // 建立幾何物件
+	pTGSymbo.symbolStyle = TGOS.TGSymbolStyle.TRIANGLE; // 設定標記的符號
+	pTGSymbo.xPixel = size; // 設定標記寬度
+	pTGSymbo.yPixel = size; // 設定標記高度
+	pTGSymbo.fillColor = color; // 設定填入顏色
+	pTGSymbo.fillOpacity = 0.7; // 設定透明度
+	pTGSymbo.strokeWeight = 2; // 設定框線寬度
+	pTGSymbo.strokeOpacity = 0.4; // 設定框線透明度
+	pTGSymbo.strokeColor = "#000000"; // 設定框線顏色
+	pTGSymbo.anchor.x = size/2; // 設定錨點x座標
+	pTGSymbo.anchor.y = size/2; // 設定錨點y座標
+	pTGSymbo.rotation = 0; // 設定符號旋轉方向
 	return pTGSymbo;
 }
 function addPosition(data){
@@ -74,10 +75,11 @@ function addPosition(data){
          zIndex:99 //視窗堆疊順序
 	};
 	var multi_point = [];
-	var current_cluster = 1;
+	var current_cluster = 1, current_color = "#AA2222";
 	symbol = getSymbol();
    	for(var i = 0; i < data.length; i++) {
-   		if(current_cluster!=data[i][data[i].length-1]) symbol = getSymbol();
+   		if(current_cluster!=data[i][data[i].length-1]) current_color = getRandomColor();
+   		var symbol = getSymbol(current_color,data[i][4]);
 		var point = new TGOS.TGPoint(data[i][0],data[i][1]); // create its position
 		var pTGMarker = new TGOS.TGMarker(pMap,point,data[i][2], symbol, {flat:false}); // establish the point on map
 
