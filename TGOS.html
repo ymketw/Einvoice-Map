@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<title>Getting Start TGOS MAP</title>
+<title>電子發票地圖 | Powered by TGOS MAP</title>
 <script type="text/javascript" src="http://api.tgos.nat.gov.tw/TGOS_API/tgos?ver=2&AppID=Tw7cFZt2kGy6wTmw3sIekPBqrEIY0lreYgSFa4bcfVYojDkig/xlBA==&APIKey=cGEErDNy5yN/1fQ0vyTOZrghjE+jIU6u5ipI0qIhBu7EFQSTnV2gxTwzUff8quRx097rfBNjje7sHbyWWbX99SCpMT9K1S+ijwN5Jrs+jJzZFUp+9EVKc+Md9vHCphSN77s9oYXRwyC2rr0kKonjqe6z9cQZFV2nm4W8FdZX1hqhUr2C2OqLMw51SmZS8VElWODFnEIZ+Gv5OHSFgdKaYXj1thYkXX5/QsYr1cV+dFUnqzCx9a3B0uznYgd72itE8kB4VcuCpgq8LisEz7NHYoKAIRYc7PlDraz6y4zQnNmy4qaHPkjAjHuZxXRJajZMa7WKPy563AjqWXRkNW+8VjJpqMgdnE+myfuSAli0NbD+JEiR+6rbOQ==" charset="utf-8"></script>
 <script type="text/javascript" src="test_data.js"></script>
 <script type="text/javascript">
@@ -42,12 +42,31 @@ function addPosition(data){
                                                //向右X為正, 向上Y為負
          zIndex:99 //視窗堆疊順序
 	};
-	for(var i=0; i<data.length; ++i){
-		point = new TGOS.TGMarker(pMap,new TGOS.TGPoint(data[i][0],data[i][1]),data[i][2],pTGSymbo);
+    multi_point = [];
+   	for(var i = 0; i < data.length; i++) {
+		point = new TGOS.TGPoint(data[i][0],data[i][1]); // create its position
+		multi_point.push(point);
+		var pTGMarker = new TGOS.TGMarker(pMap,point,data[i][2], pTGSymbo, {flat:false});   // establish the point on map
+		//-----------------establish a message box--------------------
+		var InfoWindowOptions = {
+		      maxWidth:4000, // 訊息視窗的最大寬度
+		      pixelOffset: new TGOS.TGSize(5, -30) //InfoWindow起始位置的偏移量, 使用TGSize設定, 向右X為正, 向上Y為負 
+		};             
+		messageBox= new TGOS.TGInfoWindow(data[i][2]+':'+data[i][3]+'<br />發票號碼：'+data[i][4], point, InfoWindowOptions); // the content in message box
+
+		TGOS.TGEvent.addListener(pTGMarker, "mouseover", function (pTGMarker, messageBox) {
+		     return function () {
+		     	messageBox.open(pMap, pTGMarker);
+		     }
+		} (pTGMarker, messageBox));
+
+		TGOS.TGEvent.addListener(pTGMarker, "mouseout", function (messageBox) {
+		         return function () {
+		                    messageBox.close();
+		         }
+		} (messageBox));
 	}
-	messageBox = new TGOS.TGInfoWindow('<h1><font color="red">'+i+'</font></h1>', point, InfoWindowOptions);
-	TGOS.TGEvent.addListener(pTGMarker, "mouseover", openInfoWindow);
-    TGOS.TGEvent.addListener(pTGMarker, "mouseout", closeInfoWindow);
+	//addMarkerClusters(multi_point); // add these point to the same cluster
 }
 function addMarker(markerPoint, _name){
 	var pTGSymbo = new TGOS.TGSymbol();               //建立幾何物件
