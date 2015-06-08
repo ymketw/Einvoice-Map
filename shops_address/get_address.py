@@ -43,8 +43,8 @@ if __name__ == '__main__':
 	get_shops_address("http://twcoupon.com/brandshop-%E5%BA%B7%E6%98%AF%E7%BE%8E-%E9%9B%BB%E8%A9%B1-%E5%9C%B0%E5%9D%80.html")
 	get_shops_address("http://twcoupon.com/brandshop-%E5%B1%88%E8%87%A3%E6%B0%8F-%E9%9B%BB%E8%A9%B1-%E5%9C%B0%E5%9D%80.html")
 
-	f = open("shops_address", "w")
+	f = open("shops_address.csv", "w")
 	for store_name, branch_name, address, in zip(store_name_list, branch_name_list, address_list):
-		f.write("{0} {1} {2}\n".format( store_name, branch_name, address) )
+		f.write("{0},{1},{2}\n".format( store_name, branch_name, address) )
 	f.close()
 

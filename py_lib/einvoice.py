@@ -11,7 +11,7 @@ import urllib.request
 
 import  json
 
-from invoice import Invoice
+from py_lib.invoice import Invoice
 
 def uniqid(prefix='', more_entropy=False):
 	m = time.time()
@@ -142,16 +142,14 @@ def get_einvoice(api_key, app_id, card_type, card_no, card_encrypt):
 
 	return invoice_list
 
-if __name__ == '__main__':
-
+#if __name__ == '__main__':
+def login(account, password):
 	#TEST
 	api_key = "QWQ4dU9WMzRXa2xoYUdsZA=="
 	app_id = "EINV0201505042102"
 	card_type = "3J0002"
-	card_no = "/SMV1EFQ"
-	card_encrypt = "1212"
+	card_no = account #"/SMV1EFQ"
+	card_encrypt = password #"1212"
 
 	invoice_list = get_einvoice(api_key, app_id, card_type, card_no, card_encrypt)
-	for inv in invoice_list:
-		inv._print()
-		print()
+	return invoice_list

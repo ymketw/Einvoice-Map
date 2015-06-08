@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>電子發票地圖 | Powered by TGOS MAP</title>
+<script type="text/javascript" src="http://api.tgos.nat.gov.tw/TGOS_API/tgos?ver=2&AppID=Tw7cFZt2kGy6wTmw3sIekPBqrEIY0lreYgSFa4bcfVYojDkig/xlBA==&APIKey=cGEErDNy5yN/1fQ0vyTOZrghjE+jIU6u5ipI0qIhBu7EFQSTnV2gxTwzUff8quRx097rfBNjje7sHbyWWbX99SCpMT9K1S+ijwN5Jrs+jJzZFUp+9EVKc+Md9vHCphSN77s9oYXRwyC2rr0kKonjqe6z9cQZFV2nm4W8FdZX1hqhUr2C2OqLMw51SmZS8VElWODFnEIZ+Gv5OHSFgdKaYXj1thYkXX5/QsYr1cV+dFURFu/uMAmqkw+J9ZJf+tkbVKPCDe5+Q9iZxD5kbKi//lTMHsHnk6cMx/eqxNYBnyq6Aid3I/8Rh1wBTb9gpG83/ZOYOLZdgaBoeG5sy4EZR4ovs2V4LEljHuQFw77myV/ml5fWAsq1a0jsU6UTDVgPtscZAe5nC6lymREelkwoCw==" charset="utf-8"></script>
+<script type="text/javascript" src="/static/test_data.js"></script>
+<script type="text/javascript">
+data = test_data;
+var pMap = null;
+function InitWnd() {
+	var pOMap = document.getElementById("TGMap");
+	pMap = new TGOS.TGOnlineMap(pOMap, TGOS.TGCoordSys.EPSG3857); // set coordinate to WGS84
+	pMap.setCenter(new TGOS.TGPoint(121.516946, 25.047941) );  // set the center of the initial map
+	pMap.setZoom(13); // Zooming scale
+	addPosition(test_data);
+}
+function show_detail(items_array){
+	item_list = '<table align="center"><tr><th>商品名稱</th><th>數量</th><th>單價</th><th>總價</th></tr>';
+	for(var i=0;i<items_array.length;++i){
+		item_list += '<tr>';
+		for(var j=1;j<items_array[i].length;++j){
+			item_list += '<td>' + items_array[i][j] + '</td>';
+		}
+		item_list += '</tr>';
+	}
+	item_list += '</table>';
+	return item_list;
+}
+function get_invoice_list_string(invoice_array){
+	var invoice_list = '<a href="javascript:showBlock(false)">close</a><br /><table align="center"><tr><th>順序</th><th>日期</th><th>發票號碼</th><th>總金額</th><th>購買品項</th></tr>';
+	for(var i=0;i<invoice_array.length;++i){
+		invoice_list += '<tr><td>'+(i+1)+'</td>';
+		for(var j=0;j<invoice_array[i].length-1;++j){
+			invoice_list += '<td>' + invoice_array[i][j] + '</td>';
+		}
+		invoice_list += '<td>' + show_detail(invoice_array[i][invoice_array[i].length-1]) + '</td></tr>';
+	}
+	invoice_list += '</table>';
+	return invoice_list;
+}
+function showBlock(status){
+	document.getElementById('detail').style.display = (status==true)?"block":"none";
+}
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+function getSymbol(color, freq){
+	size = (freq/10+10)*1.2; // set the size dending on the frequency of shopping times
+	pTGSymbo = new TGOS.TGSymbol(); // 建立幾何物件
+	pTGSymbo.symbolStyle = TGOS.TGSymbolStyle.TRIANGLE; // 設定標記的符號
+	pTGSymbo.xPixel = size; // 設定標記寬度
+	pTGSymbo.yPixel = size; // 設定標記高度
+	pTGSymbo.fillColor = color; // 設定填入顏色
+	pTGSymbo.fillOpacity = 0.7; // 設定透明度
+	pTGSymbo.strokeWeight = 2; // 設定框線寬度
+	pTGSymbo.strokeOpacity = 0.4; // 設定框線透明度
+	pTGSymbo.strokeColor = "#000000"; // 設定框線顏色
+	pTGSymbo.anchor.x = size/2; // 設定錨點x座標
+	pTGSymbo.anchor.y = size/2; // 設定錨點y座標
+	pTGSymbo.rotation = 0; // 設定符號旋轉方向
+	return pTGSymbo;
+}
+function addPosition(data){
+	var InfoWindowOptions = {
+         maxWidth:4000, //訊息視窗的最大寬度
+         pixelOffset: new TGOS.TGSize(5, -30), //InfoWindow起始位置的偏移量
+                                               //使用TGSize設定
+                                               //向右X為正, 向上Y為負
+         zIndex:99 //視窗堆疊順序
+	};
+	var multi_point = [];
+	var current_cluster = 1, current_color = "#AA2222";
+	symbol = getSymbol();
+   	for(var i = 0; i < data.length; i++) {
+   		if(current_cluster!=data[i][data[i].length-1]) current_color = getRandomColor();
+   		var symbol = getSymbol(current_color,data[i][4]);
+		var point = new TGOS.TGPoint(data[i][0],data[i][1]); // create its position
+		var pTGMarker = new TGOS.TGMarker(pMap,point,data[i][2], symbol, {flat:false}); // establish the point on map
+
+		if(current_cluster==data[i][data[i].length-1]) multi_point.push(pTGMarker);
+		else{
+			addMarkerClusters(multi_point);
+			multi_point = [pTGMarker];
+			current_cluster = data[i][data[i].length-1];
+		}
+		//-----------------establish a message box--------------------
+		var InfoWindowOptions = {
+		      maxWidth:4000, // 訊息視窗的最大寬度
+		      pixelOffset: new TGOS.TGSize(5, -30) //InfoWindow起始位置的偏移量, 使用TGSize設定, 向右X為正, 向上Y為負
+		};
+		var invoice_message = data[i][2]+'：'+data[i][3]+'<br />頻率：'+data[i][4]+'<br />最常購買商品：';
+		messageBox = new TGOS.TGInfoWindow(invoice_message, point, InfoWindowOptions); // the content in message box
+
+		TGOS.TGEvent.addListener(pTGMarker, "mouseover", function (pTGMarker, messageBox) { // when mouse over the point
+		     return function () {
+		     	messageBox.open(pMap, pTGMarker);
+		     }
+		} (pTGMarker, messageBox));
+
+		TGOS.TGEvent.addListener(pTGMarker, "mouseout", function (messageBox) { // when mouse out the point
+		         return function () {
+		                    messageBox.close();
+		         }
+		} (messageBox));
+		TGOS.TGEvent.addListener(pTGMarker, "click", function (invoice_array){ // when click the point
+			return function (){
+				showBlock(true);
+				document.getElementById('detail').innerHTML = get_invoice_list_string(invoice_array);
+				}
+			}(data[i][5]) );
+	}
+	addMarkerClusters(multi_point); // add these point to the same cluster
+}
+function addMarkerClusters(markers) {                           //使用群聚標記點功能
+    mCluster = new TGOS.TGMarkerCluster(pMap, markers,{}); //建立群聚標記點物件
+    mCluster.setMaxZoom(12);                             //設定群聚標記點最大縮放範圍
+    mCluster.setVisible(true);                         //設定群聚標記點是否為顯示狀態
+    mCluster.setSearchBounds(30);                      //設定群聚標記點的搜尋範圍(單位px)
+    mCluster.redrawAll(true);                         //是否重新繪製群聚標記點物件
+}
+</script>
+</head>
+<body style="margin: 0px" onload="InitWnd();">
+	<div id="TGMap" style="width:100vw;height:100vh;"></div>
+	<div id="detail" style="position: absolute; background-color:orange; text-align:center; color: blue; width: 800px; height: 100vh; top: 0px; left:0; right:0; margin-left:auto; margin-right:auto;display:none;"><font color="white"></font></div>
+</body>
+</html>
