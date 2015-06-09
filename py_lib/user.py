@@ -1,6 +1,7 @@
 import sys
 import einvoice
 from seller import list_sellers
+from seller import Seller
 
 try:
 	from trips.invoice import Invoice
@@ -25,12 +26,59 @@ class User(object):
 			with open('invoice_list_tmp.pkl', 'rb') as f:
 				self.invoice_list = pickle.load(f)
 
-		#key is the ID of store
-		self.visit_freqency = {}
+
+		#key is the id of seller
+		self.sellers = {}
+		#key is the seller_name in invoice
+		self.visit_frequency = {}
 		self.top_item = {}
+		self.items = {}
 		self.consumption = {}
 
-	def 
+	def add_seller(self, s):
+		i = s.branch_name
+		self.sellers[s.id] = Seller(s.id, s.store_name, s.address, s.longitude, s.latitude)
+		self.sellers[s.id].set_branch_name(s.branch_name)
+		self.sellers[s.id].set_visit_frequency(self.visit_frequency[i])
+		self.sellers[s.id].set_consumption(self.consumption[i])
+		self.sellers[s.id].set_top_item(self.top_item[i][0].description)
+		self.sellers[s.id]._print()
+
+	def statistics(self, shop):
+		for invoice in self.invoice_list:
+			if invoice.seller_name not in self.visit_frequency:
+				self.visit_frequency[invoice.seller_name] = 0
+				self.items[invoice.seller_name] = {}
+				self.consumption[invoice.seller_name] = 0.0
+			self.visit_frequency[invoice.seller_name] += 1
+			for item in invoice.item:
+				if item not in self.items[invoice.seller_name]:
+					self.items[invoice.seller_name][item] = 0
+				self.items[invoice.seller_name][item] += 1
+			self.consumption[invoice.seller_name] += invoice.amount
+
+		for i in self.items:
+			top = 0  
+			for j in self.items[i]:
+				if top < self.items[i][j]:
+					top = self.items[i][j]
+			self.top_item[i] = [] 
+			for j in self.items[i]:
+				if self.items[i][j] >= top:
+					self.top_item[i].append(j)
+
+		#for i in self.visit_frequency:
+		#	print(i, self.visit_frequency[i], self.consumption[i], self.top_item[i][0].description)
+
+		sellers = list_sellers(shop)
+		for i in self.visit_frequency:
+			for j in sellers:
+				if i == sellers[j].branch_name:
+					self.add_seller(sellers[j])
+					#s = sellers[j]
+					#self.sellers[s.id] = Seller(s.id, s.store_name, s.branch_name, s.address, s.longitude, s.latitude)
+					#print(i, self.visit_frequency[i], self.consumption[i], self.top_item[i][0].description, sellers[j].address)
+
 
 #if __name__ == '__main__':
 def login(account, password):
@@ -52,6 +100,9 @@ if __name__ == '__main__':
 	card_encrypt = '1212'
 	user = User(api_key, app_id, card_type, card_no, card_encrypt)
 	all_sellers1 = list_sellers("../Taipei_shops_with_einvoice.csv")	
+	all_sellers1 = list_sellers("../Taipei_shops_with_einvoice.csv")	
 
-	for inv in user.invoice_list:
-		inv._print()
+	#for inv in user.invoice_list:
+	#	inv._print()
+
+	user.statistics('../Taipei_shops_with_einvoice.csv')
