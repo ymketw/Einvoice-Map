@@ -42,7 +42,7 @@ class User(object):
 		self.sellers[s.id].set_visit_frequency(self.visit_frequency[i])
 		self.sellers[s.id].set_consumption(self.consumption[i])
 		self.sellers[s.id].set_top_item(self.top_item[i][0].description)
-		self.sellers[s.id]._print()
+		#self.sellers[s.id]._print()
 
 	def statistics(self, shop):
 		for invoice in self.invoice_list:
