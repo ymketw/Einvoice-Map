@@ -11,7 +11,10 @@ import urllib.request
 
 import  json
 
-from py_lib.invoice import Invoice
+try:
+	from py_lib.invoice import Invoice
+except:
+	from invoice import Invoice
 
 def uniqid(prefix='', more_entropy=False):
 	m = time.time()
@@ -131,7 +134,6 @@ def invoice_item_query(api_key, app_id, card_type, card_no, card_encrypt, invoic
 			invoice_item_url = 'https://www.einvoice.nat.gov.tw/PB2CAPIVAN/invServ/InvServ?' + param_list + '&signature=' + signature.decode()
 			with urllib.request.urlopen( invoice_item_url ) as url:
 				data = json.loads(url.read().decode())
-
 			for item in data["details"]:
 				invoice_list[i].add_item(item) 
 	return invoice_list

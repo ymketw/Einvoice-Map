@@ -22,7 +22,8 @@ def list_sellers(csv_file):
 		
 if __name__ == '__main__':
 	#TEST
-	sellers = list_sellers("../Taipei_shops_with_einvoice.csv")
+	all_sellers1 = list_sellers("../Taipei_shops_with_einvoice.csv")
+	#all_sellers2 = list_sellers("../Taipei_shops_with_einvoice.csv")
 	#for key in sellers:
 	for i in range(1, 2000):
 		sellers[i]._print()
